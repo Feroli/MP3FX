@@ -1,6 +1,7 @@
 package MP3;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -489,22 +490,43 @@ public class Interface extends Application {
         progressSlider.setId("pro-slider");
         progressSlider.setPrefWidth(300);
 
-        mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {
-            @Override
-            public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
-                progressSlider.setValue(newValue.toSeconds() / 2.6);
+//        mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
+//                progressSlider.setValue(newValue.toSeconds() / 2.6);
+//            }
+//        });
+//
+//        progressSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
+//            @Override
+//            public void handle(MouseEvent mouseEvent) {
+//                mediaPlayer.seek(Duration.seconds(progressSlider.getValue()));
+//            }
+//        });
+
+//        UPDATE TIME SLIDER
+        mediaPlayer.currentTimeProperty().addListener(observable -> {
+
+            updatesValues();
+
+        });
+
+
+        // CHANGE PROGRESS OF MEDIA
+        progressSlider.valueProperty().addListener(observable -> {
+            if(progressSlider.isPressed()){
+                mediaPlayer.seek(mediaPlayer.getMedia().getDuration().multiply(progressSlider.getValue()/100));
             }
         });
 
-        progressSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                mediaPlayer.seek(Duration.seconds(progressSlider.getValue()));
-            }
-        });
+
 
         return progressSlider;
 
+    }
+
+    protected void updatesValues(){
+        Platform.runLater(() -> progressSlider.setValue(mediaPlayer.getCurrentTime().toMillis() / mediaPlayer.getTotalDuration().toMillis() * 100));
     }
 
 
